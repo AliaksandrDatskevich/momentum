@@ -1,6 +1,8 @@
 const time = document.querySelector('.time');
 const day = document.querySelector('.date');
 const greeting = document.querySelector('.greeting');
+const slideNext = document.querySelector('.slide-next');
+const slidePrev = document.querySelector('.slide-prev');
 
 function showTime() {
   const date = new Date();
@@ -9,31 +11,31 @@ function showTime() {
   showDate();
   showGreeting();
   setTimeout(showTime, 1000);
-}
+};
 
 function showDate() {
   const date = new Date();
   const options = {weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC'};
   const currentDate = date.toLocaleDateString('ru-Ru', options);
   day.textContent = currentDate;
-}
+};
 
 showTime();
 
 function showGreeting() {
+  greeting.textContent = `Good ${getTimeOfDay()} `;
+};
+
+function getTimeOfDay() {
   const date = new Date();
   const hours = date.getHours();
-  greeting.textContent = `Good ${getTimeOfDay(hours)} `;
-}
-
-function getTimeOfDay(h) {
-  if (h >= 0 && h < 6) {
+  if (hours >= 0 && hours < 6) {
     return 'night'
-  } else if (h >= 6 && h < 12) {
+  } else if (hours >= 6 && hours < 12) {
     return 'morning'
-  } else if (h >= 12 && h < 18) {
+  } else if (hours >= 12 && hours < 18) {
     return 'afternoon'
-  } else if (h >= 18 && h < 24) {
+  } else if (hours >= 18 && hours < 24) {
     return 'evening'
   } 
 };
@@ -51,3 +53,55 @@ function getLocalStorage() {
   }
 };
 window.addEventListener('load', getLocalStorage);
+
+let randomNum;
+
+function getRandomNumToString() {
+  let n = String(randomNum);
+  if (n.length < 2) {
+    n = '0' + n
+  };
+  return n
+};
+
+const body = document.querySelector('.body');
+body.style.backgroundImage = setBg();
+
+function getRandomNum() {
+  min = Math.ceil(1);
+  max = Math.floor(20);
+  randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+function getImage() {
+  const img = new Image();
+  img.src = `https://raw.githubusercontent.com/AliaksandrDatskevich/stage1-tasks/assets/images/${getTimeOfDay()}/${getRandomNumToString()}.jpg`; 
+  img.onload = () => {      
+    body.style.backgroundImage = `url('https://raw.githubusercontent.com/AliaksandrDatskevich/stage1-tasks/assets/images/${getTimeOfDay()}/${getRandomNumToString()}.jpg')`
+  }; 
+}
+
+function setBg() {
+  getRandomNum();
+  return getImage()
+};
+
+function getSlideNext() {
+  randomNum = randomNum + 1;
+  if (randomNum > 20) {
+    randomNum = 1;
+  };
+  getImage();
+};
+
+slideNext.addEventListener('click', getSlideNext);
+
+function getSlidePrev() {
+  randomNum = randomNum - 1;
+  if (randomNum < 1) {
+    randomNum = 20;
+  };
+getImage();
+};
+
+slidePrev.addEventListener('click', getSlidePrev)
