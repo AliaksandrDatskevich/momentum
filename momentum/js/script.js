@@ -68,9 +68,7 @@ const body = document.querySelector('.body');
 body.style.backgroundImage = setBg();
 
 function getRandomNum() {
-  min = Math.ceil(1);
-  max = Math.floor(20);
-  randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+  randomNum = getRandomIntInclusive(1, 20);
 };
 
 function getImage() {
@@ -123,8 +121,8 @@ async function getWeather() {
     weatherIcon.classList.add(`owf-${data.weather[0].id}`);
     temperature.textContent = `${data.main.temp.toFixed()} °C`;
     weatherDescription.textContent = data.weather[0].description;
-    wind.textContent = `${data.wind.speed.toFixed()} m/c`;
-    humidity.textContent = `${data.main.humidity} %`;
+    wind.textContent = `Wind speed: ${data.wind.speed.toFixed()} m/c`;
+    humidity.textContent = `Humidity: ${data.main.humidity} %`;
     weatherError.textContent = ``;
   } else {
     weatherError.textContent = `${data.message}`;
@@ -134,7 +132,6 @@ async function getWeather() {
     humidity.textContent = ``;
   }
 }
-getWeather();
 
 city.addEventListener('change', getWeather)
 
@@ -150,3 +147,26 @@ function getLocalStorageCity() {
   getWeather()
 };
 window.addEventListener('load', getLocalStorageCity);
+
+const quote = document.querySelector('.quote');
+const author = document.querySelector('.author');
+let quotesData = [];
+
+async function getQuotes() {  
+  const quotes = 'https://type.fit/api/quotes';
+  const res = await fetch(quotes);
+  quotesData = await res.json();
+  quote.textContent = `"${quotesData[getRandomIntInclusive(0, quotesData.length)].text}"`;
+  author.textContent = quotesData[getRandomIntInclusive(0, quotesData.length)].author;  
+}
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+getQuotes();
+
+const changeQuote = document.querySelector('.change-quote');
+changeQuote.addEventListener('click', getQuotes);
