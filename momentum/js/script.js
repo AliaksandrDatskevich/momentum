@@ -133,7 +133,8 @@ async function getWeather() {
   }
 }
 
-city.addEventListener('change', getWeather)
+city.addEventListener('change', getWeather);
+setInterval(getWeather, 300000);
 
 function setLocalStorageCity() {
   localStorage.setItem('city', city.value);
@@ -170,3 +171,91 @@ getQuotes();
 
 const changeQuote = document.querySelector('.change-quote');
 changeQuote.addEventListener('click', getQuotes);
+
+// >>> AUDIO <<< \\
+
+const play = document.querySelector('.play');
+const playNext = document.querySelector('.play-next');
+const playPrev = document.querySelector('.play-prev');
+
+let isPlay = false;
+
+const audio = new Audio();
+let playNum = 0;
+audio.addEventListener('ended', (event) => {
+  getNextTrack();
+});
+
+function playAudio() {
+  audio.src = playList[playNum].src;
+  audio.currentTime = 0;
+  if (!isPlay) {
+    audio.play();
+    isPlay = true;
+  } else {
+    audio.pause();
+    isPlay = false;
+  };
+  play.classList.toggle('pause');
+  setStyleActiveLi();
+};
+
+import playList from './playList.js';
+
+play.addEventListener('click', playAudio);
+
+function playAudioForNextPrev() {
+  audio.src = playList[playNum].src;
+  if (isPlay) {
+    audio.currentTime = 0;
+    audio.play();
+  }
+};
+
+function getNextTrack() {
+  if (isPlay) {
+    setStyleActiveLi();
+  };
+  playNum = playNum + 1;
+  if (playNum > playList.length - 1) {
+    playNum = 0;
+  };
+  if (isPlay) {
+    setStyleActiveLi();
+  };
+  playAudioForNextPrev();
+};
+
+playNext.addEventListener('click', getNextTrack);
+
+function getPrevTrack() {
+  if (isPlay) {
+    setStyleActiveLi();
+  };
+  playNum = playNum - 1;
+  if (playNum < 0) {
+    playNum = playList.length - 1;
+  };
+  if (isPlay) {
+    setStyleActiveLi();
+  };
+  playAudioForNextPrev();
+};
+
+playPrev.addEventListener('click', getPrevTrack);
+
+const playListContainer = document.querySelector('.play-list');
+
+for (let i = 0; i < playList.length; i++) {
+  const li = document.createElement('li');
+  li.classList.add(`play-item`);
+  li.classList.add(`play-item${i}`);
+  playListContainer.append(li);
+  let currentLi = document.querySelector(`.play-item${i}`);
+  currentLi.textContent = playList[i].title;
+};
+
+function setStyleActiveLi() {
+  let itemActive = document.querySelector(`.play-item${playNum}`);
+  itemActive.classList.toggle(`item-active`);
+};
