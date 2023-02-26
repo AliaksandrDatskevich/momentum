@@ -1,29 +1,56 @@
+const state = {
+  language: 'en',
+}
+const translation = {
+  en: {
+    night: 'Good night',
+    morning: 'Good morning',
+    afternoon: 'Good afternoon',
+    evening: 'Good evening',
+    windSpeed: 'Wind speed',
+    humidity: 'Humidity',
+  },
+  ru: {
+    night: 'Доброй ночи',
+    morning: 'Доброе утро',
+    afternoon: 'Добрый день',
+    evening: 'Добрый вечер',
+    windSpeed: 'Скорость ветра',
+    humidity: 'Влажность',
+  },
+}
+
 const time = document.querySelector('.time');
 const day = document.querySelector('.date');
 const greeting = document.querySelector('.greeting');
 const slideNext = document.querySelector('.slide-next');
 const slidePrev = document.querySelector('.slide-prev');
 
+
+// >>> TIME & DATE <<< \\
+
 function showTime() {
   const date = new Date();
   const currentTime = date.toLocaleTimeString();
   time.textContent = currentTime;
   showDate();
-  showGreeting();
+  showGreeting(state.language);
   setTimeout(showTime, 1000);
 };
 
 function showDate() {
   const date = new Date();
   const options = {weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC'};
-  const currentDate = date.toLocaleDateString('ru-Ru', options);
+  const currentDate = date.toLocaleDateString(state.language, options);
   day.textContent = currentDate;
 };
 
 showTime();
 
-function showGreeting() {
-  greeting.textContent = `Good ${getTimeOfDay()}, `;
+// >>> GREETING <<< \\
+
+function showGreeting(lang) {
+  greeting.textContent = `${translation[lang][getTimeOfDay()]}, `;
 };
 
 function getTimeOfDay() {
@@ -53,6 +80,8 @@ function getLocalStorage() {
   }
 };
 window.addEventListener('load', getLocalStorage);
+
+// >>> BACKGROUND IMAGE <<< \\
 
 let randomNum;
 
@@ -104,6 +133,8 @@ getImage();
 
 slidePrev.addEventListener('click', getSlidePrev)
 
+// >>> WEATHER <<< \\
+
 const weatherIcon = document.querySelector('.weather-icon');
 const temperature = document.querySelector('.temperature');
 const weatherDescription = document.querySelector('.weather-description');
@@ -113,7 +144,7 @@ const humidity = document.querySelector('.humidity');
 const weatherError = document.querySelector('.weather-error');
 
 async function getWeather() {  
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&lang=en&appid=cf963835798b2915db0fca16fe1c700c&units=metric`;
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&lang=${state.language}&appid=cf963835798b2915db0fca16fe1c700c&units=metric`;
   const res = await fetch(url);
   const data = await res.json(); 
   if (data.cod === 200) {
@@ -121,8 +152,8 @@ async function getWeather() {
     weatherIcon.classList.add(`owf-${data.weather[0].id}`);
     temperature.textContent = `${data.main.temp.toFixed()} °C`;
     weatherDescription.textContent = data.weather[0].description;
-    wind.textContent = `Wind speed: ${data.wind.speed.toFixed()} m/c`;
-    humidity.textContent = `Humidity: ${data.main.humidity} %`;
+    wind.textContent = `${translation[state.language].windSpeed}: ${data.wind.speed.toFixed()} m/c`;
+    humidity.textContent = `${translation[state.language].humidity}: ${data.main.humidity} %`;
     weatherError.textContent = ``;
   } else {
     weatherError.textContent = `${data.message}`;
@@ -149,16 +180,19 @@ function getLocalStorageCity() {
 };
 window.addEventListener('load', getLocalStorageCity);
 
+// >>> QUOTE <<< \\
+
 const quote = document.querySelector('.quote');
 const author = document.querySelector('.author');
 let quotesData = [];
+let quotesObj = {};
 
-async function getQuotes() {  
+async function getQuotes() {
   const quotes = 'https://type.fit/api/quotes';
   const res = await fetch(quotes);
   quotesData = await res.json();
   quote.textContent = `"${quotesData[getRandomIntInclusive(0, quotesData.length)].text}"`;
-  author.textContent = quotesData[getRandomIntInclusive(0, quotesData.length)].author;  
+  author.textContent = quotesData[getRandomIntInclusive(0, quotesData.length)].author;
 }
 
 function getRandomIntInclusive(min, max) {
@@ -259,3 +293,38 @@ function setStyleActiveLi() {
   let itemActive = document.querySelector(`.play-item${playNum}`);
   itemActive.classList.toggle(`item-active`);
 };
+
+// >>> TRANSLATION <<< \\
+
+const language = document.querySelector('.language');
+
+function setLanguage() {
+  if (state.language === 'en') {
+    state.language = 'ru';
+    name.placeholder = "[Введите имя]";
+    if(!localStorage.getItem('city')) {
+      city.value = 'Минск';
+    }
+  } else if (state.language === 'ru') {
+    state.language = 'en';
+    name.placeholder = "[Enter name]";
+    if(!localStorage.getItem('city')) {
+      city.value = 'Minsk'
+    }
+  };
+  setLocalStorageSettings();
+  getWeather();
+};
+
+function setLocalStorageSettings() {
+  localStorage.setItem('language', state.language);
+};
+
+function getLocalStorageSettings() {
+  if(localStorage.getItem('language')) {
+    state.language = localStorage.getItem('language');
+  }
+};
+window.addEventListener('beforeunload', setLocalStorageSettings);
+window.addEventListener('load', getLocalStorageSettings);
+language.addEventListener('click', setLanguage);
