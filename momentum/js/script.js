@@ -8,6 +8,7 @@ const translation = {
     afternoon: 'Good afternoon',
     evening: 'Good evening',
     windSpeed: 'Wind speed',
+    metersPerSecond: 'm/c',
     humidity: 'Humidity',
   },
   ru: {
@@ -16,6 +17,7 @@ const translation = {
     afternoon: 'Добрый день',
     evening: 'Добрый вечер',
     windSpeed: 'Скорость ветра',
+    metersPerSecond: 'м/с',
     humidity: 'Влажность',
   },
 }
@@ -152,7 +154,7 @@ async function getWeather() {
     weatherIcon.classList.add(`owf-${data.weather[0].id}`);
     temperature.textContent = `${data.main.temp.toFixed()} °C`;
     weatherDescription.textContent = data.weather[0].description;
-    wind.textContent = `${translation[state.language].windSpeed}: ${data.wind.speed.toFixed()} m/c`;
+    wind.textContent = `${translation[state.language].windSpeed}: ${data.wind.speed.toFixed()} ${translation[state.language].metersPerSecond}`;
     humidity.textContent = `${translation[state.language].humidity}: ${data.main.humidity} %`;
     weatherError.textContent = ``;
   } else {
